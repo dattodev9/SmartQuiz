@@ -1,0 +1,29 @@
+{
+  "name": "smart-quiz-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "serverless offline start --stage dev",
+    "build": "tsc",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf .build .serverless"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@google/generative-ai": "^0.21.0",
+    "uuid": "^11.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "serverless": "^4.0.0",
+    "serverless-offline": "^14.0.0",
+    "typescript": "^5.6.0",
+    "rimraf": "^6.0.0"
+  }
+}

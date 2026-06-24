@@ -1,0 +1,102 @@
+service: smart-quiz-api
+
+frameworkVersion: '4'
+
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude:
+      - '@aws-sdk/*'
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-southeast-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 30
+  environment:
+    GEMINI_API_KEY: ${env:GEMINI_API_KEY, ''}
+    GEMINI_MODEL: ${env:GEMINI_MODEL, 'gemini-2.0-flash'}
+    DEMO_MODE: ${env:DEMO_MODE, 'false'}
+    TABLE_NAME: ${self:custom.tableName}
+    STAGE: ${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - !GetAtt SmartQuizTable.Arn
+
+custom:
+  tableName: smart-quiz-${self:provider.stage}
+  serverless-offline:
+    httpPort: 3001
+    lambdaPort: 3002
+
+functions:
+  healthCheck:
+    handler: src/handlers/healthCheck.handler
+    events:
+      - httpApi:
+          path: /api/v1/health
+          method: GET
+
+  generateQuiz:
+    handler: src/handlers/generateQuiz.handler
+    timeout: 30
+    events:
+      - httpApi:
+          path: /api/v1/quizzes/generate
+          method: POST
+
+  generateSummary:
+    handler: src/handlers/generateSummary.handler
+    timeout: 30
+    events:
+      - httpApi:
+          path: /api/v1/summaries/generate
+          method: POST
+
+  getHistory:
+    handler: src/handlers/getHistory.handler
+    events:
+      - httpApi:
+          path: /api/v1/history
+          method: GET
+
+  getQuiz:
+    handler: src/handlers/getQuiz.handler
+    events:
+      - httpApi:
+          path: /api/v1/quizzes/{id}
+          method: GET
+
+resources:
+  Resources:
+    SmartQuizTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

@@ -1,0 +1,19 @@
+{
+  "name": "smart-quiz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Quiz - Chrome Extension for AI-powered quiz generation and summarization",
+  "workspaces": [
+    "shared",
+    "extension",
+    "backend"
+  ],
+  "scripts": {
+    "dev:ext": "cd extension && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:ext": "cd extension && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "typecheck": "npm run typecheck --workspaces",
+    "clean": "npm run clean --workspaces"
+  }
+}

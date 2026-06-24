@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Smart Quiz — AI Quiz Generator",
+  "description": "Highlight text on any webpage to generate AI-powered quizzes and summaries for effective learning.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "icons/icon.svg",
+    "48": "icons/icon.svg",
+    "128": "icons/icon.svg"
+  },
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "sidePanel",
+    "storage",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "src/sidepanel/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Smart Quiz",
+    "default_icon": {
+      "16": "icons/icon.svg",
+      "48": "icons/icon.svg",
+      "128": "icons/icon.svg"
+    }
+  }
+}
