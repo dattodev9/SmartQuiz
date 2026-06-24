@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import type { QuizSet, Summary } from '@shared/types';
 import { MessageType } from '@shared/types';
+import { useI18n } from '../useI18n';
 
 interface HistoryViewProps {
   onLoadQuiz: (quiz: QuizSet) => void;
@@ -27,6 +28,7 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
   const [filter, setFilter] = useState<HistoryFilter>('all');
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const { locale, t } = useI18n();
 
   useEffect(() => {
     loadHistory();
@@ -44,16 +46,16 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
         data: q,
         title: q.pageTitle || 'Quiz',
         preview: q.sourceText.substring(0, 100) + '...',
-        date: formatDate(q.createdAt),
+        date: formatDate(q.createdAt, locale),
         score: q.score !== undefined ? `${q.score}/${q.totalQuestions}` : undefined,
       }));
 
       const summaryEntries: HistoryEntry[] = (response.summaries || []).map((s) => ({
         type: 'summary' as const,
         data: s,
-        title: s.pageTitle || 'Tóm tắt',
+        title: s.pageTitle || t.tabSummary,
         preview: s.bulletPoints[0] || s.sourceText.substring(0, 100) + '...',
-        date: formatDate(s.createdAt),
+        date: formatDate(s.createdAt, locale),
       }));
 
       // Merge and sort by date (newest first)
@@ -102,19 +104,19 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
           className={`tab-btn ${filter === 'all' ? 'tab-btn--active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          Tất cả
+          {t.historyTitle}
         </button>
         <button
           className={`tab-btn ${filter === 'quiz' ? 'tab-btn--active' : ''}`}
           onClick={() => setFilter('quiz')}
         >
-          🎯 Quiz
+          🎯 {t.historyQuizzes}
         </button>
         <button
           className={`tab-btn ${filter === 'summary' ? 'tab-btn--active' : ''}`}
           onClick={() => setFilter('summary')}
         >
-          📝 Tóm tắt
+          📝 {t.historySummaries}
         </button>
       </div>
 
@@ -123,10 +125,10 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <span className="text-4xl mb-3">📭</span>
           <p className="text-sm text-text-secondary">
-            Chưa có lịch sử nào.
+            {t.historyEmpty}
           </p>
           <p className="text-xs text-text-muted mt-1">
-            Hãy tạo quiz hoặc tóm tắt đầu tiên!
+            {t.historyEmptySubtitle}
           </p>
         </div>
       ) : (
@@ -168,7 +170,7 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
         className="btn-secondary w-full mt-4 justify-center"
         onClick={loadHistory}
       >
-        🔄 Làm mới
+        🔄 Refresh
       </button>
     </div>
   );
@@ -176,7 +178,7 @@ export default function HistoryView({ onLoadQuiz, onLoadSummary }: HistoryViewPr
 
 // --- Helpers ---
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string, locale: string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -184,12 +186,20 @@ function formatDate(dateStr: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Vừa xong';
-  if (diffMins < 60) return `${diffMins} phút trước`;
-  if (diffHours < 24) return `${diffHours} giờ trước`;
-  if (diffDays < 7) return `${diffDays} ngày trước`;
+  if (locale === 'vi') {
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+  } else {
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+  }
 
-  return date.toLocaleDateString('vi-VN', {
+  const dateLocale = locale === 'vi' ? 'vi-VN' : 'en-US';
+  return date.toLocaleDateString(dateLocale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

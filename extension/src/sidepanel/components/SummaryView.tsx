@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import type { Summary } from '@shared/types';
+import { useI18n } from '../useI18n';
 
 interface SummaryViewProps {
   summary: Summary;
@@ -17,6 +18,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('bullets');
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
 
   const toggleFlip = (index: number) => {
     setFlippedCards((prev) => {
@@ -53,7 +55,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
             className={`tab-btn ${viewMode === 'bullets' ? 'tab-btn--active' : ''}`}
             onClick={() => setViewMode('bullets')}
           >
-            📋 Gạch đầu dòng
+            📋 {t.summaryBullets}
           </button>
           <button
             className={`tab-btn ${viewMode === 'flashcards' ? 'tab-btn--active' : ''}`}
@@ -61,7 +63,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
             disabled={summary.flashcards.length === 0}
             style={{ opacity: summary.flashcards.length === 0 ? 0.4 : 1 }}
           >
-            🃏 Flashcards
+            🃏 {t.summaryFlashcards}
           </button>
         </div>
       </div>
@@ -90,7 +92,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
             className="btn-secondary w-full mt-3 justify-center"
             onClick={handleCopy}
           >
-            {copied ? '✅ Đã sao chép!' : '📋 Sao chép tóm tắt'}
+            {copied ? '✅ Copied!' : `📋 Copy`}
           </button>
         </div>
       )}
@@ -99,7 +101,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
       {viewMode === 'flashcards' && (
         <div className="space-y-3">
           <p className="text-xs text-text-muted text-center mb-2">
-            Nhấn vào thẻ để lật xem đáp án
+            {t.summaryClickToFlip}
           </p>
           {summary.flashcards.map((card, index) => (
             <div
@@ -111,7 +113,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
                 <div className="flashcard__face flashcard__front">
                   <div>
                     <div className="text-xs text-accent-secondary font-semibold mb-2">
-                      Câu hỏi {index + 1}
+                      {t.summaryFront} {index + 1}
                     </div>
                     <p className="text-sm font-medium text-text-primary">
                       {card.front}
@@ -121,7 +123,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
                 <div className="flashcard__face flashcard__back">
                   <div>
                     <div className="text-xs text-accent-primary font-semibold mb-2">
-                      Đáp án
+                      {t.summaryBack}
                     </div>
                     <p className="text-sm text-text-primary">{card.back}</p>
                   </div>
@@ -135,7 +137,7 @@ export default function SummaryView({ summary, onReset }: SummaryViewProps) {
       {/* Actions */}
       <div className="mt-6 pb-4">
         <button className="btn-primary w-full justify-center" onClick={onReset}>
-          ✨ Tóm tắt đoạn khác
+          ✨ {t.summaryNewSummary}
         </button>
       </div>
     </div>

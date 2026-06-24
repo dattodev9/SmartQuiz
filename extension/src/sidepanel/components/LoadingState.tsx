@@ -3,23 +3,28 @@
 // Skeleton shimmer and animated progress indicator
 // ============================================================
 
+import { useState, useEffect } from 'react';
+import { useI18n } from '../useI18n';
+
 interface LoadingStateProps {
   type: 'quiz' | 'summary';
   preview?: string;
 }
 
 export default function LoadingState({ type, preview }: LoadingStateProps) {
+  const { t } = useI18n();
+
   const messages =
     type === 'quiz'
       ? [
-          '🔍 Đang phân tích văn bản...',
-          '🧠 AI đang tạo câu hỏi...',
-          '✨ Sắp xong rồi...',
+          `🔍 ${t.loadingStep1}...`,
+          `🧠 ${t.loadingStep2Quiz}...`,
+          `✨ ${t.loadingStep3}...`,
         ]
       : [
-          '🔍 Đang đọc nội dung...',
-          '📝 AI đang tóm tắt...',
-          '✨ Sắp xong rồi...',
+          `🔍 ${t.loadingStep1}...`,
+          `📝 ${t.loadingStep2Summary}...`,
+          `✨ ${t.loadingStep3}...`,
         ];
 
   return (
@@ -47,7 +52,7 @@ export default function LoadingState({ type, preview }: LoadingStateProps) {
       {/* Preview of selected text */}
       {preview && (
         <div className="w-full max-w-[280px] px-4 py-3 rounded-lg bg-bg-glass border border-border">
-          <p className="text-xs text-text-muted mb-1">Đoạn văn đã chọn:</p>
+          <p className="text-xs text-text-muted mb-1">{t.loadingPreview}:</p>
           <p className="text-xs text-text-secondary italic line-clamp-3 leading-relaxed">
             "{preview}"
           </p>
@@ -72,8 +77,6 @@ export default function LoadingState({ type, preview }: LoadingStateProps) {
 }
 
 // --- Loading Messages (cycling) ---
-
-import { useState, useEffect } from 'react';
 
 function LoadingMessages({ messages }: { messages: string[] }) {
   const [index, setIndex] = useState(0);

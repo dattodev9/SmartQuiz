@@ -7,6 +7,7 @@ import { useState, useMemo } from 'react';
 import type { QuizSet } from '@shared/types';
 import QuizCard from './QuizCard';
 import { MessageType } from '@shared/types';
+import { useI18n } from '../useI18n';
 
 interface QuizViewProps {
   quiz: QuizSet;
@@ -17,6 +18,7 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useI18n();
 
   const currentQuestion = quiz.questions[currentIndex];
   const totalQuestions = quiz.questions.length;
@@ -92,20 +94,20 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
           </div>
           <h2 className="text-lg font-bold mt-4 text-text-primary">
             {percentage >= 80
-              ? '🎉 Xuất sắc!'
+              ? t.quizScoreGreat
               : percentage >= 50
-              ? '👍 Khá tốt!'
-              : '💪 Cần ôn thêm!'}
+              ? t.quizScoreGood
+              : t.quizScorePoor}
           </h2>
           <p className="text-sm text-text-secondary mt-1">
-            Bạn trả lời đúng {results.score}/{results.total} câu
+            {results.score}/{results.total} {t.quizCorrect}
           </p>
         </div>
 
         {/* Review all questions */}
         <div className="space-y-4 mt-2">
           <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
-            Đáp án chi tiết
+            {t.quizExplanation}
           </h3>
           {quiz.questions.map((question, index) => (
             <div key={question.id} className={`animate-fade-in stagger-${index + 1}`}>
@@ -124,7 +126,7 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
         {/* Actions */}
         <div className="flex gap-3 mt-6 pb-4">
           <button className="btn-secondary flex-1" onClick={onReset}>
-            ✨ Tạo Quiz mới
+            ✨ {t.quizNewQuiz}
           </button>
           <button
             className="btn-primary flex-1"
@@ -134,7 +136,7 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
               setCurrentIndex(0);
             }}
           >
-            🔄 Làm lại
+            🔄 {t.quizRetry}
           </button>
         </div>
       </div>
@@ -154,10 +156,10 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs font-medium text-text-secondary">
-            Câu {currentIndex + 1} / {totalQuestions}
+            {t.quizQuestion} {currentIndex + 1} / {totalQuestions}
           </span>
           <span className="text-xs text-text-muted">
-            Đã trả lời: {answeredCount}/{totalQuestions}
+            {answeredCount}/{totalQuestions}
           </span>
         </div>
         <div className="progress-bar">
@@ -183,12 +185,12 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
           disabled={currentIndex === 0}
           style={{ opacity: currentIndex === 0 ? 0.4 : 1 }}
         >
-          ← Trước
+          ← {t.quizPrevious}
         </button>
 
         {currentIndex < totalQuestions - 1 ? (
           <button className="btn-primary flex-1" onClick={handleNext}>
-            Tiếp →
+            {t.quizNext} →
           </button>
         ) : (
           <button
@@ -196,7 +198,7 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
             onClick={handleSubmit}
             disabled={!canSubmit}
           >
-            ✅ Nộp bài
+            ✅ {t.quizSubmit}
           </button>
         )}
       </div>
@@ -218,7 +220,7 @@ export default function QuizView({ quiz, onReset }: QuizViewProps) {
               border: '1px solid var(--color-border)',
               transform: i === currentIndex ? 'scale(1.3)' : 'scale(1)',
             }}
-            title={`Câu ${i + 1}${answers[q.id] ? ' (đã trả lời)' : ''}`}
+            title={`${t.quizQuestion} ${i + 1}`}
           />
         ))}
       </div>
